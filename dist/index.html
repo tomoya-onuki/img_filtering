@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+    <title>Image Filtering Sample</title>
+</head>
+
+<body>
+    <h1>Image Filtering Sample</h1>
+    <div>画像処理の学習のためにフルスクラッチした画像フィルタリングのプログラム。ライブラリなどは不使用。</div>
+    <!-- <img src="./test.JPG" alt=""> -->
+    <canvas id="main"></canvas>
+    <div>
+        <div class="label">原画像</div>
+        <div class="label">ノイズ画像</div>
+        <div class="label">フィルタリング結果</div>
+    </div>
+    <div>
+        <select name="mode" id="mode">
+            <option value="-1">グレースケール</option>
+            <option value="0">水平平均フィルタ</option>
+            <option value="1">垂直平均フィルタ</option>
+            <option value="2">移動平均フィルタ</option>
+            <option value="3">加重平均フィルタ</option>
+            <option value="4">ガウシアンフィルタ</option>
+            <option value="5">選択的平均化フィルタ</option>
+            <option value="6">バイラテラルフィルタ</option>
+            <option value="7">NLMF</option>
+            <option value="8">メディアンフィルタ</option>
+        </select>
+
+        Loop:<input type="number" name="loop" id="loop" value="1">
+
+        
+        <select name="noise" id="noise">
+            <option value="0">ガウスノイズ</option>
+            <option value="1">ホワイトノイズ</option>
+            <option value="2">ごま塩ノイズ</option>
+        </select>
+
+        <button id="draw">Run</button>
+        <div id="msg"></div>
+    </div>
+    <div id="copy">&copy; 2022, Tomoya Onuki.</div>
+</body>
+
+</html>
