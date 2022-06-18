@@ -69,9 +69,9 @@ h3 {
 hr {
     border: none;
     border-top: #eee 1px solid;
-    width: 300px;
+    width: 800px;
     height: 0px;
-    margin: 50px 0 50px 0;
+    margin: 50px 0 50px 50px;
 }
 
 #description {
@@ -118,6 +118,7 @@ img {
 figcaption {
     text-align: center;
     color: #666;
+    margin-bottom: 30px;
 }
 
 
