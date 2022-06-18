@@ -154,7 +154,7 @@
                         </div>
                         <div class="formula">
                             <div>近傍領域の類似性に基づいてカーネルを変化させるエッジ保存型カーネルフィルタ。注目画素の近傍領域と任意画素の近傍領域を比較するテンプレートマッチングを行う。</div>
-                            <div>O(x,y)=\frac{
+                            <div>$O(x,y)=\frac{
                                 \sum_{(m,n)\in W_p}I(X+m,y+n)\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p}
                                 K_sK_d)}{\sum_{(m,n)\in W_p}\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p} K_sK_d)}</div>
                             <div>空間カーネル：$K_s=\exp(-\frac{m^2+n^2}{2\sigma_s^2})$</div>
