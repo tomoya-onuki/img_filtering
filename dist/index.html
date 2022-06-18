@@ -7,6 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <script src="main.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" }},
+        tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+        },
+        "HTML-CSS": { matchFontHeight: false },
+        displayAlign: "left",
+        displayIndent: "2em"
+    });
+    </script>
     <title>Image Filtering Sample</title>
 </head>
 
@@ -22,29 +36,155 @@
     </div>
     <div>
         <select name="mode" id="mode">
-            <option value="-1">グレースケール</option>
-            <option value="0">水平平均フィルタ</option>
-            <option value="1">垂直平均フィルタ</option>
-            <option value="2">移動平均フィルタ</option>
-            <option value="3">加重平均フィルタ</option>
-            <option value="4">ガウシアンフィルタ</option>
-            <option value="5">選択的平均化フィルタ</option>
-            <option value="6">バイラテラルフィルタ</option>
-            <option value="7">NLMF</option>
-            <option value="8">メディアンフィルタ</option>
+            <option id="mode0" value="0">水平平均フィルタ</option>
+            <option id="mode1" value="1">垂直平均フィルタ</option>
+            <option id="mode2" value="2">移動平均フィルタ</option>
+            <option id="mode3" value="3">加重平均フィルタ</option>
+            <option id="mode4" value="4">ガウシアンフィルタ</option>
+            <option id="mode5" value="5">選択的平均化フィルタ</option>
+            <option id="mode6" value="6">バイラテラルフィルタ</option>
+            <option id="mode7" value="7">NLMF</option>
+            <option id="mode8" value="8">メディアンフィルタ</option>
         </select>
 
         Loop:<input type="number" name="loop" id="loop" value="1">
 
-        
+
         <select name="noise" id="noise">
             <option value="0">ガウスノイズ</option>
             <option value="1">ホワイトノイズ</option>
             <option value="2">ごま塩ノイズ</option>
         </select>
 
-        <button id="draw">Run</button>
+        <button id="draw">実行</button>
         <div id="msg"></div>
+    </div>
+    <hr>
+    <div id="description">
+        <div id="base">
+            <h2>画像の基本</h2>
+            <div class="left">
+                <ul>
+                    <li>
+                        <div class="head">画素</div>
+                        <div class="item">画像は細かい画素という点の集合で構成されている。(Fig1)</div>
+                    </li>
+                    <li>
+                        <div class="head">解像度</div>
+                        <div class="item">画素の数が多いほど精細(=解像度が高い)な画像になる。</div>
+                    </li>
+                    <li>
+                        <div class="head">RGB</div>
+                        <div class="item">各画素は赤・青・緑の3色の情報を持っている。どんな色もこの3色の混合で表現される。これを加法混色という。</div>
+                    </li>
+                    <li>
+                        <div class="head">画素値</div>
+                        <div class="item">各画素はRGBの情報を数値として持っている。例) $(r,g,b) = (255, 0, 0)$</div>
+                    </li>
+                    <li>
+                        <div class="head">階調</div>
+                        <div class="item">
+                            色(や明るさ)の表現力の単位。Fig2ではRの値が段階的に変化する3種類の様子を示している。通常の画像は256階調を用いる。(計算機では2進数を扱うので、1画素は$256=2^8$より8bit=1byteの情報量になる。)
+                        </div>
+                    </li>
+                    <li>
+                        <div class="head">ノイズ・ぼけ</div>
+                        <div class="item">画像はノイズやぼけによって劣化する。いくつかの画素の値が正確でなくなることによって起こる。</div>
+                    </li>
+                    <li>
+                        <div class="head">フィルタリング</div>
+                        <div class="item">
+                            ノイズの解消方法としてフィルタリング処理がある。誤った画素値を本来の画素値に近づけることが目的である。Fig3.左上のように修正したい画素(=注目画素)の周辺の画素から、注目画素を計算する。例えば、周辺の9画素の平均値を注目画素の画素値にする。これによって本来の画素値に近づくことは想像に難くない。さて、この処理をFig3.
+                            のように画像の端から端まで動かしながら繰り返す(=走査という)。このように、画像を走査しながら周辺画素から注目画素の値を計算することをフィルタリングという。</div>
+                    </li>
+                    <li>
+                        <div class="head">カーネル</div>
+                        <div class="item">
+                            フィルタのことをカーネルといい、そのサイズ（カーネルサイズ）は任意である。カーネルサイズを大きくするとノイズの影響が減少するが、局在性が低下しがちである。基本的には注目画素を中心するために奇数の正方形になるようにする。
+                        </div>
+                    </li>
+                </ul>
+
+                <div id="filter">
+                    <h2></h2>
+                    <div id="kerel">
+                        <div>以下のカーネルでフィルタリングする。</div>
+                        <table>
+                            <tr>
+                                <td class="kernel-cell">0</td>
+                                <td class="kernel-cell">0</td>
+                                <td class="kernel-cell">0</td>
+                            </tr>
+                            <tr>
+                                <td class="kernel-cell">1/3</td>
+                                <td class="kernel-cell">1/3</td>
+                                <td class="kernel-cell">1/3</td>
+                            </tr>
+                            <tr>
+                                <td class="kernel-cell">0</td>
+                                <td class="kernel-cell">0</td>
+                                <td class="kernel-cell">0</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div id="formula-list">
+                        <div class="formula">
+                            <div>加重平均フィルタの重みをガウス分布に近づけたものがガウシアンフィルタである。σが小さくなると鋭角になる。フィルタ係数は中心画素からの距離に依存し、そういったものを空間カーネルという。</div>
+                            <div>$G(x,y)=\frac{1}{2\pi\sigma^2}\exp(-\frac{m^2+n^2}{2\sigma^2})$</div>
+                        </div>
+                        <div class="formula">
+                            <div>エッジ保存の解決策として挙げられるのは、複数のカーネルを用意するエッジ保存型平滑化フィルタである。それぞれのカーネルでフィルタリングした時に画素値の分散が最小になるカーネルで平滑化する。つまりエッジを避けた領域で平滑化を行う。</div>
+                            <div>用意したカーネルの分だけ精度が向上する。なぜならより最適なカーネルを利用できるからだ。しかしカーネルを探すために用意したカーネルの個数だけ演算コストが高くなるという短所もある。</div>
+                            <img src="./img/select_means.png">
+                        </div>
+                        <div class="formula">
+                            <div>より柔軟性の高いフィルタを求めて作られたのがバイラテルフィルタ。点間の距離と類似性に基づいて適応的にカーネルを変化させるエッジ保存型平滑化フィルタである。がウシアンフィルタのような空間カーネルだけでなく、類似性に基づく強度カーネルも考慮する。例えば画素値の差分などを見ることが考えられる。注目画素とその近傍領域内の任意画素の距離と類似性を考える。</div>
+                            <div>$O(x,y)=\frac{
+                                \sum_{(m,n)\in N_p}I(X+m,y+n)K_sK_d}{\sum_{(m,n)\in N_p}K_sK_d}$</div>
+                            <div>空間カーネル：$K_s=\exp(-\frac{m^2+n^2}{2\sigma_s^2})$</div>
+                            <div>強度カーネル：K_d=\exp(-\frac{(I(x+m,y+n)-I(x,y))^2}{2\sigma_d^2})</div>
+                        </div>
+                        <div class="formula">
+                            <div>近傍領域の類似性に基づいてカーネルを変化させるエッジ保存型カーネルフィルタ。注目画素の近傍領域と任意画素の近傍領域を比較するテンプレートマッチングを行う。</div>
+                            <div>O(x,y)=\frac{
+                                \sum_{(m,n)\in W_p}I(X+m,y+n)\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p}
+                                K_sK_d)}{\sum_{(m,n)\in W_p}\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p} K_sK_d)}</div>
+                            <div>空間カーネル：$K_s=\exp(-\frac{m^2+n^2}{2\sigma_s^2})$</div>
+                            <div>強度カーネル：K_d=(I(x+m,y+n)-I(u+m,v+n))^2</div>
+                        </div>
+
+                        <div class="formula">
+                            <div>外れ値が含まれる画像の平均値をとると本来の画素値に近づかない場合がある。例えばごま塩ノイズなどがそれにあたる。そういった場合は、中央値を用いることで外れ値の影響を除外できる。</div>
+                            <img src="./img/median.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <figure>
+                    <img src="./img/zoom.JPG">
+                    <figcaption>Fig1. 解像度</figcaption>
+                </figure>
+                <figure>
+                    <img src="./img/shade.png">
+                    <figcaption>Fig2. 階調</figcaption>
+                </figure>
+                <figure>
+                    <img src="./img/filtering.png">
+                    <figcaption>Fig3. フィルタリング</figcaption>
+                </figure>
+                <figure>
+                    <img src="./img/kernel.png">
+                    <figcaption>
+                        <div>Fig4. カーネルによる計算</div>
+                        <div>左辺：処理後の画素</div>
+                        <div>右辺：処理前の画像と、カーネルの掛け算</div>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
     </div>
     <div id="copy">&copy; 2022, Tomoya Onuki.</div>
 </body>

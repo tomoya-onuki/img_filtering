@@ -16,8 +16,8 @@ export class App {
     private imgHeight: number = 0;
 
     private img: HTMLImageElement = new Image();
-    private imgSrc = './test.JPG';
-    private filterMode: number = -1;
+    private imgSrc = './img/test.JPG';
+    private filterMode: number = 0;
     private loop: number = 1;
 
     private noiserate: number = 0.05;
@@ -33,6 +33,8 @@ export class App {
         me.cvs.height = this.height;
         me.cvs.style.width = String(this.width / devicePixelRatio) + 'px';
         me.cvs.style.height = String(this.height / devicePixelRatio) + 'px';
+        viewKernel(this.filterMode);
+        viewDescription(me.filterMode);
 
         me.img.src = this.imgSrc;
         me.img.onload = () => {
@@ -60,6 +62,13 @@ export class App {
 
             $('#mode').on('change', function () {
                 me.filterMode = Number($(this).val());
+                console.log(me.filterMode);
+                if (0 <= me.filterMode && me.filterMode < 4) {
+                    viewKernel(me.filterMode);
+                } else {
+                    viewFormula(me.filterMode);
+                }
+                viewDescription(me.filterMode);
             });
             $('#noise').on('change', function () {
                 const mode = Number($(this).val());
@@ -76,13 +85,13 @@ export class App {
                 }
             });
             $('#draw').on('mousedown', function () {
-                $('#msg').text('processing...');
+                $('#msg').text('処理中...');
             });
             $('#draw').on('click', function () {
                 me.filtering(pixels)
                     .then((output) => {
                         me.ctx.putImageData(output, me.width * 2 / 3, 0); // 描画
-                        $('#msg').text('done');
+                        $('#msg').text('完了');
                     });
             });
         }
@@ -206,9 +215,14 @@ export class App {
 
         // 移動平均
         else if (this.filterMode == 2) {
+            let kernel2: number[] = [
+                1 / 9, 1 / 9, 1 / 9,
+                1 / 9, 1 / 9, 1 / 9,
+                1 / 9, 1 / 9, 1 / 9
+            ];
             for (let i = 0; i < a.length; i++) {
                 for (let j = 0; j < a[i].length; j++) {
-                    out[j] += a[i][j] * 1 / 9;
+                    out[j] += a[i][j] * kernel2[i];
                 }
             }
         }
@@ -396,4 +410,39 @@ export class App {
             return c * Math.cos(Math.PI * 2 * b) * s + m;
         }
     };
+}
+
+
+
+function viewKernel(mode: number): void {
+    const kernel: string[][] = [
+        ['0', '0', '0', '1/3', '1/3', '1/3', '0', '0', '0'],
+        ['0', '1/3', '0', '0', '1/3', '0', '0', '1/3', '0'],
+        ['1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9'],
+        ['1/16', '2/16', '1/16', '2/16', '4/16', '2/16', '1/16', '2/16', '1/16']
+    ];
+    if(mode >= kernel.length) return;
+    $('#kerel').show();
+    $('#formula-list').hide();
+    $('.kernel-cell').each(function (i, elem) {
+        $(elem).text(kernel[mode][i]);
+    });
+}
+function viewFormula(mode: number): void {
+    let idx: number = mode - 4;
+    console.log('f', mode, idx)
+    $('#kerel').hide();
+    $('#formula-list').show();
+    $('.formula').each(function(i, elem) {
+        if (i === idx) {
+            $(elem).show();
+        } else {
+            $(elem).hide();
+        }
+    });
+}
+
+function viewDescription(mode: number): void {
+    let label = $(`#mode${mode}`).text();
+    $('#filter > h2').text(label);
 }
