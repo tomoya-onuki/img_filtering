@@ -10,7 +10,7 @@ $(function () {
 export class App {
     private cvs: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private width: number = 900 * devicePixelRatio;
+    private width: number = 600 * devicePixelRatio;
     private height: number = 200 * devicePixelRatio;
     private imgWidth: number = 0;
     private imgHeight: number = 0;
@@ -33,6 +33,8 @@ export class App {
         me.cvs.height = this.height;
         me.cvs.style.width = String(this.width / devicePixelRatio) + 'px';
         me.cvs.style.height = String(this.height / devicePixelRatio) + 'px';
+
+        me.filterMode = Number($('#mode').val());
         viewKernel(this.filterMode);
         viewDescription(me.filterMode);
 
@@ -40,6 +42,8 @@ export class App {
         me.img.onload = () => {
             me.imgWidth = me.img.width * devicePixelRatio;
             me.imgHeight = me.img.height * devicePixelRatio;
+
+            console.log(me.imgWidth, me.width, me.cvs.width)
 
             // 画像の描画
             me.ctx.save();
@@ -50,14 +54,10 @@ export class App {
             let input = me.ctx.getImageData(0, 0, me.imgWidth, me.imgHeight);
             me.ctx.putImageData(input, 0, 0); // 描画
 
-            // ノイズ画像のimageDataの生成
-            let noise = me.noise(input, 0);
-            me.ctx.putImageData(noise, me.width / 3, 0);
-
-            let pixels = noise;
+            let pixels = input;
             me.filtering(pixels)
                 .then((output) => {
-                    me.ctx.putImageData(output, me.width * 2 / 3, 0); // 描画
+                    me.ctx.putImageData(output, me.width / 2, 0); // 描画
                 });
 
             $('#mode').on('change', function () {
@@ -69,11 +69,6 @@ export class App {
                     viewFormula(me.filterMode);
                 }
                 viewDescription(me.filterMode);
-            });
-            $('#noise').on('change', function () {
-                const mode = Number($(this).val());
-                noise = me.noise(input, mode);
-                me.ctx.putImageData(noise, me.width / 3, 0);
             });
             $('#loop').on('input', function () {
                 let val = Number($(this).val());
@@ -90,7 +85,7 @@ export class App {
             $('#draw').on('click', function () {
                 me.filtering(pixels)
                     .then((output) => {
-                        me.ctx.putImageData(output, me.width * 2 / 3, 0); // 描画
+                        me.ctx.putImageData(output, me.width / 2, 0); // 描画
                         $('#msg').text('完了');
                     });
             });
@@ -143,8 +138,10 @@ export class App {
         return await new Promise(function (resolve, reject) {
             let output = me.ctx.createImageData(me.imgWidth, me.imgHeight);
             for (let i = 0; i < me.loop; i++) {
-                for (let y = 1; y < pixels.width - 1; y++) {
-                    for (let x = 1; x < pixels.width - 1; x++) {
+                for (let y = 0; y < pixels.width; y++) {
+                // for (let y = 1; y < pixels.width - 1; y++) {
+                    // for (let x = 1; x < pixels.width - 1; x++) {
+                    for (let x = 0; x < pixels.width; x++) {
                         let data: number[] = me.myFilter(x, y, pixels);
                         output = me.setPixel(data, output, x, y)
                     }
@@ -348,6 +345,113 @@ export class App {
             }
             out = [r.sort()[4], g.sort()[4], b.sort()[4]];
         }
+
+
+
+        // ソーベルフィルタ(水平)
+        else if (this.filterMode == 9) {
+            let kernel9: number[] = [
+                -1.0, -2.0, -1.0,
+                0.0, 0.0, 0.0,
+                1.0, 2.0, 1.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel9[i];
+                }
+            }
+        }
+
+        // ソーベルフィルタ(垂直)
+        else if (this.filterMode == 10) {
+            let kernel10: number[] = [
+                -1.0, 0.0, 1.0,
+                -2.0, 0.0, 2.0,
+                -1.0, 0.0, 1.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel10[i];
+                }
+            }
+        }
+
+        // ラプラシアンフィルタ(4近傍)
+        else if (this.filterMode == 11) {
+            let kernel11: number[] = [
+                0.0, 1.0, 0.0,
+                1.0, -4.0, 1.0,
+                0.0, 1.0, 0.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel11[i];
+                }
+            }
+        }
+
+        // ラプラシアンフィルタ(8近傍)
+        else if (this.filterMode == 12) {
+            let kernel12: number[] = [
+                1.0, 1.0, 1.0,
+                1.0, -8.0, 1.0,
+                1.0, 1.0, 1.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel12[i];
+                }
+            }
+        }
+
+        // LoG
+        else if (this.filterMode == 13) {
+            let a5: number[][] = new Array(25);
+            let m5: number[] = [
+                -2, -1, 0, 1, 2, 
+                -2, -1, 0, 1, 2, 
+                -2, -1, 0, 1, 2, 
+                -2, -1, 0, 1, 2, 
+                -2, -1, 0, 1, 2
+            ];
+            let n5: number[] = [
+                -2, -2, -2, -2, -2,
+                -1, -1, -1, -1, -1, 
+                0, 0, 0, 0, 0,
+                1, 1, 1, 1, 1,
+                2, 2, 2, 2, 2,
+            ];
+            for (let i = 0; i < a5.length; i++) {
+                a5[i] = new Array(5);
+                a5[i] = this.getPixel(pixels, x + m5[i], y + n5[i]);
+            }
+            let kernel13: number[] = [
+                0, 0, 1, 0, 0,
+                0, 1, 2, 1, 0,
+                1, 2, -16, 2, 1,
+                0, 1, 2, 1, 0,
+                0, 0, 1, 0, 0,
+            ];
+            for (let i = 0; i < a5.length; i++) {
+                for (let j = 0; j < a5[i].length; j++) {
+                    out[j] += a5[i][j] * kernel13[i];
+                }
+            }
+        }
+
+        // エッジ強調
+        else if (this.filterMode == 14) {
+            let kernel14: number[] = [
+                0.0, -1.0, 0.0,
+                -1.0, 5.0, -1.0,
+                0.0, -1.0, 0.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel14[i];
+                }
+            }
+        }
         return out;
     }
 
@@ -386,11 +490,12 @@ export class App {
     }
     private setPixel(data: number[], output: any, x: number, y: number): any {
         const i = y * (output.width * 4) + x * 4;
-
-        output.data[i] = data[0];
-        output.data[i + 1] = data[1];
-        output.data[i + 2] = data[2];
-        output.data[i + 3] = 255;
+        if(0 < i && i < output.data.length - 4) {
+            output.data[i] = data[0];
+            output.data[i + 1] = data[1];
+            output.data[i + 2] = data[2];
+            output.data[i + 3] = 255;
+        }
 
         return output;
     }
@@ -421,7 +526,7 @@ function viewKernel(mode: number): void {
         ['1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9'],
         ['1/16', '2/16', '1/16', '2/16', '4/16', '2/16', '1/16', '2/16', '1/16']
     ];
-    if(mode >= kernel.length) return;
+    if (mode >= kernel.length) return;
     $('#kerel').show();
     $('#formula-list').hide();
     $('.kernel-cell').each(function (i, elem) {
@@ -433,7 +538,7 @@ function viewFormula(mode: number): void {
     console.log('f', mode, idx)
     $('#kerel').hide();
     $('#formula-list').show();
-    $('.formula').each(function(i, elem) {
+    $('.formula').each(function (i, elem) {
         if (i === idx) {
             $(elem).show();
         } else {
