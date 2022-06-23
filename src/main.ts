@@ -372,8 +372,22 @@ export class App {
             }
         }
 
+         // ソーベルフィルタ
+         else if (this.filterMode == 11) {
+            let kernel10: number[] = [
+                -3.0, -2.0, -1.0,
+                -2.0, 0.0, 2.0,
+                1.0, 2.0, 3.0,
+            ];
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a[i].length; j++) {
+                    out[j] += a[i][j] * kernel10[i];
+                }
+            }
+        }
+
         // ラプラシアンフィルタ(4近傍)
-        else if (this.filterMode == 11) {
+        else if (this.filterMode == 12) {
             let kernel11: number[] = [
                 0.0, 1.0, 0.0,
                 1.0, -4.0, 1.0,
@@ -387,7 +401,7 @@ export class App {
         }
 
         // ラプラシアンフィルタ(8近傍)
-        else if (this.filterMode == 12) {
+        else if (this.filterMode == 13) {
             let kernel12: number[] = [
                 1.0, 1.0, 1.0,
                 1.0, -8.0, 1.0,
@@ -401,7 +415,7 @@ export class App {
         }
 
         // LoG
-        else if (this.filterMode == 13) {
+        else if (this.filterMode == 14) {
             let a5: number[][] = new Array(25);
             let m5: number[] = [
                 -2, -1, 0, 1, 2,
@@ -436,7 +450,7 @@ export class App {
         }
 
         // エッジ強調
-        else if (this.filterMode == 14) {
+        else if (this.filterMode == 15) {
             let kernel14: number[] = [
                 0.0, -1.0, 0.0,
                 -1.0, 5.0, -1.0,
