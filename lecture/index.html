@@ -20,45 +20,18 @@
     </script>
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-    <title>Image Filtering Sample</title>
+    <title>Image Processing Sample</title>
 </head>
 
 <body>
-    <h1>Image Filtering Sample</h1>
+    <h1>画像処理 - 基本編</h1>
     <div>画像処理の学習のためにフルスクラッチした画像フィルタリングのプログラム。ライブラリなどは不使用。</div>
-    <!-- <img src="./test.JPG" alt=""> -->
-    <canvas id="main"></canvas>
-    <div>
-        <div class="label">原画像</div>
-        <div class="label">ノイズ画像</div>
-        <div class="label">フィルタリング結果</div>
-    </div>
-    <div>
-        <select name="mode" id="mode">
-            <option id="mode0" value="0">水平平均フィルタ</option>
-            <option id="mode1" value="1">垂直平均フィルタ</option>
-            <option id="mode2" value="2">移動平均フィルタ</option>
-            <option id="mode3" value="3">加重平均フィルタ</option>
-            <option id="mode4" value="4">ガウシアンフィルタ</option>
-            <option id="mode5" value="5">選択的平均化フィルタ</option>
-            <option id="mode6" value="6">バイラテラルフィルタ</option>
-            <option id="mode7" value="7">NLMF</option>
-            <option id="mode8" value="8">メディアンフィルタ</option>
-        </select>
 
-        Loop:<input type="number" name="loop" id="loop" value="1">
+    <ul style="margin-top: 10px;">
+        <li><a href="./filtering.html">ノイズ除去</a></li>
+        <li><a href="./edge.html">エッジ抽出</a></li>
+    </ul>
 
-
-        <select name="noise" id="noise">
-            <option value="0">ガウスノイズ</option>
-            <option value="1">ホワイトノイズ</option>
-            <option value="2">ごま塩ノイズ</option>
-        </select>
-
-        <button id="draw">実行</button>
-        <div id="msg"></div>
-    </div>
-    <hr>
     <div id="description">
         <div id="base">
             <h2>画像の基本</h2>
@@ -103,71 +76,6 @@
                         </div>
                     </li>
                 </ul>
-
-                <div id="filter">
-                    <h2></h2>
-                    <div id="kerel">
-                        <div>以下のカーネルでフィルタリングする。</div>
-                        <table>
-                            <tr>
-                                <td class="kernel-cell">0</td>
-                                <td class="kernel-cell">0</td>
-                                <td class="kernel-cell">0</td>
-                            </tr>
-                            <tr>
-                                <td class="kernel-cell">1/3</td>
-                                <td class="kernel-cell">1/3</td>
-                                <td class="kernel-cell">1/3</td>
-                            </tr>
-                            <tr>
-                                <td class="kernel-cell">0</td>
-                                <td class="kernel-cell">0</td>
-                                <td class="kernel-cell">0</td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div id="formula-list">
-                        <div class="formula">
-                            <div>
-                                加重平均フィルタの重みをガウス分布に近づけたものがガウシアンフィルタである。σが小さくなると鋭角になる。フィルタ係数は中心画素からの距離に依存し、そういったものを空間カーネルという。
-                            </div>
-                            <div>$G(x,y)=\frac{1}{2\pi\sigma^2}\exp(-\frac{m^2+n^2}{2\sigma^2})$</div>
-                        </div>
-                        <div class="formula">
-                            <div>
-                                エッジ保存の解決策として挙げられるのは、複数のカーネルを用意するエッジ保存型平滑化フィルタである。それぞれのカーネルでフィルタリングした時に画素値の分散が最小になるカーネルで平滑化する。つまりエッジを避けた領域で平滑化を行う。
-                            </div>
-                            <div>
-                                用意したカーネルの分だけ精度が向上する。なぜならより最適なカーネルを利用できるからだ。しかしカーネルを探すために用意したカーネルの個数だけ演算コストが高くなるという短所もある。
-                            </div>
-                            <img src="./img/select_means.png">
-                        </div>
-                        <div class="formula">
-                            <div>
-                                より柔軟性の高いフィルタを求めて作られたのがバイラテルフィルタ。点間の距離と類似性に基づいて適応的にカーネルを変化させるエッジ保存型平滑化フィルタである。がウシアンフィルタのような空間カーネルだけでなく、類似性に基づく強度カーネルも考慮する。例えば画素値の差分などを見ることが考えられる。注目画素とその近傍領域内の任意画素の距離と類似性を考える。
-                            </div>
-                            <div>$O(x,y)=\frac{
-                                \sum_{(m,n)\in N_p}I(X+m,y+n)K_sK_d}{\sum_{(m,n)\in N_p}K_sK_d}$</div>
-                            <div>空間カーネル：$K_s=\exp(-\frac{m^2+n^2}{2\sigma_s^2})$</div>
-                            <div>強度カーネル：K_d=\exp(-\frac{(I(x+m,y+n)-I(x,y))^2}{2\sigma_d^2})</div>
-                        </div>
-                        <div class="formula">
-                            <div>近傍領域の類似性に基づいてカーネルを変化させるエッジ保存型カーネルフィルタ。注目画素の近傍領域と任意画素の近傍領域を比較するテンプレートマッチングを行う。</div>
-                            <div>$O(x,y)=\frac{
-                                \sum_{(m,n)\in W_p}I(X+m,y+n)\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p}
-                                K_sK_d)}{\sum_{(m,n)\in W_p}\exp(\frac{-1}{\sigma_n^2}\sum_{(m,n)\in N_p} K_sK_d)}</div>
-                            <div>空間カーネル：$K_s=\exp(-\frac{m^2+n^2}{2\sigma_s^2})$</div>
-                            <div>強度カーネル：K_d=(I(x+m,y+n)-I(u+m,v+n))^2</div>
-                        </div>
-
-                        <div class="formula">
-                            <div>外れ値が含まれる画像の平均値をとると本来の画素値に近づかない場合がある。例えばごま塩ノイズなどがそれにあたる。そういった場合は、中央値を用いることで外れ値の影響を除外できる。
-                            </div>
-                            <img src="./img/median.png" alt="">
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="right">

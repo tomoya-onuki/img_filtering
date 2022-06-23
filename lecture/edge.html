@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+    <!-- <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+    <script>
+        MathJax = {
+            chtml: {
+                matchFontHeight: false
+            },
+            tex: {
+                inlineMath: [['$', '$']]
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <title>Image Processing Sample</title>
+</head>
+
+<body>
+    <h1>画像処理 - ノイズ除去編</h1>
+    <div style="margin: 10px 0 10px 0;"><a href="../lecture/">Top Page</a></div>
+    <div>画像処理の学習のためにフルスクラッチした画像フィルタリングのプログラム。ライブラリなどは不使用。</div>
+    <!-- <img src="./test.JPG" alt=""> -->
+    <canvas id="main"></canvas>
+    <div>
+        <div class="label">原画像</div>
+        <div class="label">ノイズ画像</div>
+        <div class="label">フィルタリング結果</div>
+    </div>
+    <div>
+        <select name="mode" id="mode">
+            <option id="mode0" value="9">ソーベルフィルタ</option>
+            <option id="mode1" value="10">ラプラシアンフィルタ</option>
+            <option id="mode2" value="11">LoGフィルタ</option>
+        </select>
+
+        <button id="draw">実行</button>
+        <div id="msg"></div>
+    </div>
+    <hr>
+    <div id="description">
+        
+    </div>
+    <div id="copy">&copy; 2022, Tomoya Onuki.</div>
+</body>
+
+</html>
