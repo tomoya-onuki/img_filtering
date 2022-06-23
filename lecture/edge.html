@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="./js/edge.js"></script>
     <!-- <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
     <script>
         MathJax = {
@@ -31,14 +31,16 @@
     <canvas id="main"></canvas>
     <div>
         <div class="label">原画像</div>
-        <div class="label">ノイズ画像</div>
-        <div class="label">フィルタリング結果</div>
+        <div class="label">エッジ抽出の結果</div>
     </div>
     <div>
         <select name="mode" id="mode">
-            <option id="mode0" value="9">ソーベルフィルタ</option>
-            <option id="mode1" value="10">ラプラシアンフィルタ</option>
-            <option id="mode2" value="11">LoGフィルタ</option>
+            <option id="mode9" value="9">ソーベルフィルタ(水平)</option>
+            <option id="mode10" value="10">ソーベルフィルタ(垂直)</option>
+            <option id="mode11" value="11">ラプラシアンフィルタ(4近傍)</option>
+            <option id="mode12" value="12">ラプラシアンフィルタ(8近傍)</option>
+            <option id="mode13" value="13">LoGフィルタ</option>
+            <option id="mode14" value="14">エッジ強調</option>
         </select>
 
         <button id="draw">実行</button>
