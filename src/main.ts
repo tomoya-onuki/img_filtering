@@ -35,7 +35,7 @@ export class App {
         me.cvs.style.height = String(this.height / devicePixelRatio) + 'px';
 
         me.filterMode = Number($('#mode').val());
-        viewKernel(this.filterMode);
+        // viewKernel(this.filterMode);
         viewDescription(me.filterMode);
 
         me.img.src = this.imgSrc;
@@ -63,11 +63,7 @@ export class App {
             $('#mode').on('change', function () {
                 me.filterMode = Number($(this).val());
                 console.log(me.filterMode);
-                if (0 <= me.filterMode && me.filterMode < 4) {
-                    viewKernel(me.filterMode);
-                } else {
-                    viewFormula(me.filterMode);
-                }
+                
                 viewDescription(me.filterMode);
             });
             $('#loop').on('input', function () {
@@ -139,7 +135,7 @@ export class App {
             let output = me.ctx.createImageData(me.imgWidth, me.imgHeight);
             for (let i = 0; i < me.loop; i++) {
                 for (let y = 0; y < pixels.width; y++) {
-                // for (let y = 1; y < pixels.width - 1; y++) {
+                    // for (let y = 1; y < pixels.width - 1; y++) {
                     // for (let x = 1; x < pixels.width - 1; x++) {
                     for (let x = 0; x < pixels.width; x++) {
                         let data: number[] = me.myFilter(x, y, pixels);
@@ -408,15 +404,15 @@ export class App {
         else if (this.filterMode == 13) {
             let a5: number[][] = new Array(25);
             let m5: number[] = [
-                -2, -1, 0, 1, 2, 
-                -2, -1, 0, 1, 2, 
-                -2, -1, 0, 1, 2, 
-                -2, -1, 0, 1, 2, 
+                -2, -1, 0, 1, 2,
+                -2, -1, 0, 1, 2,
+                -2, -1, 0, 1, 2,
+                -2, -1, 0, 1, 2,
                 -2, -1, 0, 1, 2
             ];
             let n5: number[] = [
                 -2, -2, -2, -2, -2,
-                -1, -1, -1, -1, -1, 
+                -1, -1, -1, -1, -1,
                 0, 0, 0, 0, 0,
                 1, 1, 1, 1, 1,
                 2, 2, 2, 2, 2,
@@ -490,7 +486,7 @@ export class App {
     }
     private setPixel(data: number[], output: any, x: number, y: number): any {
         const i = y * (output.width * 4) + x * 4;
-        if(0 < i && i < output.data.length - 4) {
+        if (0 < i && i < output.data.length - 4) {
             output.data[i] = data[0];
             output.data[i + 1] = data[1];
             output.data[i + 2] = data[2];
@@ -519,33 +515,33 @@ export class App {
 
 
 
-function viewKernel(mode: number): void {
-    const kernel: string[][] = [
-        ['0', '0', '0', '1/3', '1/3', '1/3', '0', '0', '0'],
-        ['0', '1/3', '0', '0', '1/3', '0', '0', '1/3', '0'],
-        ['1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9'],
-        ['1/16', '2/16', '1/16', '2/16', '4/16', '2/16', '1/16', '2/16', '1/16']
-    ];
-    if (mode >= kernel.length) return;
-    $('#kerel').show();
-    $('#formula-list').hide();
-    $('.kernel-cell').each(function (i, elem) {
-        $(elem).text(kernel[mode][i]);
-    });
-}
-function viewFormula(mode: number): void {
-    let idx: number = mode - 4;
-    console.log('f', mode, idx)
-    $('#kerel').hide();
-    $('#formula-list').show();
-    $('.formula').each(function (i, elem) {
-        if (i === idx) {
-            $(elem).show();
-        } else {
-            $(elem).hide();
-        }
-    });
-}
+// function viewKernel(mode: number): void {
+//     const kernel: string[][] = [
+//         ['0', '0', '0', '1/3', '1/3', '1/3', '0', '0', '0'],
+//         ['0', '1/3', '0', '0', '1/3', '0', '0', '1/3', '0'],
+//         ['1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9'],
+//         ['1/16', '2/16', '1/16', '2/16', '4/16', '2/16', '1/16', '2/16', '1/16'],
+//     ];
+//     if (mode >= kernel.length) return;
+//     $('#kerel').show();
+//     $('#formula-list').hide();
+//     $('.kernel-cell').each(function (i, elem) {
+//         $(elem).text(kernel[mode][i]);
+//     });
+// }
+// function viewFormula(mode: number): void {
+//     let idx: number = mode - 4;
+//     console.log('f', mode, idx)
+//     $('#kerel').hide();
+//     $('#formula-list').show();
+//     $('.formula').each(function (i, elem) {
+//         if (i === idx) {
+//             $(elem).show();
+//         } else {
+//             $(elem).hide();
+//         }
+//     });
+// }
 
 function viewDescription(mode: number): void {
     let label = $(`#mode${mode}`).text();
