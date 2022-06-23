@@ -20,25 +20,25 @@
     </script>
     <script type="text/javascript" id="MathJax-script" async
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-        <title>Image Processing Sample</title>
+    <title>Image Processing Sample</title>
 </head>
 
 <body>
-    <h1>画像処理 - ノイズ除去編</h1>
+    <h1>画像処理 - エッジ抽出編</h1>
     <div style="margin: 10px 0 10px 0;"><a href="../lecture/">Top Page</a></div>
     <div>画像処理の学習のためにフルスクラッチした画像フィルタリングのプログラム。ライブラリなどは不使用。</div>
     <!-- <img src="./test.JPG" alt=""> -->
     <canvas id="main"></canvas>
     <div>
         <div class="label">原画像</div>
-        <div class="label">エッジ抽出の結果</div>
+        <div class="label">エッジ抽出結果</div>
     </div>
     <div>
         <select name="mode" id="mode">
-            <option id="mode9" value="9">ソーベルフィルタ(水平)</option>
-            <option id="mode10" value="10">ソーベルフィルタ(垂直)</option>
-            <option id="mode11" value="11">ラプラシアンフィルタ(4近傍)</option>
-            <option id="mode12" value="12">ラプラシアンフィルタ(8近傍)</option>
+            <option id="mode9" value="9">ソーベルフィルタ (水平方向)</option>
+            <option id="mode10" value="10">ソーベルフィルタ (垂直方向)</option>
+            <option id="mode11" value="11">ラプラシアンフィルタ (4近傍)</option>
+            <option id="mode12" value="12">ラプラシアンフィルタ (8近傍)</option>
             <option id="mode13" value="13">LoGフィルタ</option>
             <option id="mode14" value="14">エッジ強調</option>
         </select>
@@ -48,7 +48,106 @@
     </div>
     <hr>
     <div id="description">
-        
+        <div class="left">
+            <h2>エッジ抽出</h2>
+            <div>エッジの抽出は画像の特徴抽出のための最も基本的な処理の一つだといえる。</div>
+            <div>最も基本的なアイデアは空間微分により検出するというものだ。エッジは濃淡変化の大きな部分であるので、1次元信号のある点での傾きが大きければエッジと判断できる。</div>
+            <h3>1次微分</h3>
+            <ul>
+                <li>$\nabla I(x,y) = \Big( \frac{\partial I}{\partial x},\frac{\partial I}{\partial y}\Big)$</li>
+                <li>離散的な1次微分の処理自体は単純には差分を取ることである。Fig1のようになる。</li>
+                <li>問題点：ノイズに敏感に反応してしまいノイズとエッジの区別がつかなくなること。</li>
+                <li>解決法：平滑化した後にエッジ抽出をする。</li>
+                <li>例）ソーベルフィルタ</li>
+            </ul>
+            <h3>2次微分</h3>
+            <ul>
+                <li>$\nabla^2 I(x,y) = \Big( \frac{\partial^2 I}{\partial x^2},\frac{\partial^2 I}{\partial y^2}\Big)$
+                </li>
+                <li>Fig2のようになる。</li>
+                <li>エッジ箇所はゼロと交差する部分。</li>
+                <li>例）ラプラシアンフィルタ</li>
+            </ul>
+
+            <div class="edge-text">
+                <h3>ソーベルフィルタ</h3>
+                <ul>
+                    <li>加重平均で平滑化しつつ1次微分するフィルタの1つ。</li>
+                    <li>垂直方向と水平方向の2種類を紹介する。</li>
+                    <li>それぞれの方向の加重平均カーネル(非正規化)と1次微分するカーネルを掛け合わせたもの。</li>
+                </ul>
+
+            </div>
+            <div class="edge-text">
+                <h3>ラプラシアンフィルタ</h3>
+                <ul>
+                    <li>Fig4に水平・垂直それぞれの方向への2次微分のカーネルを示す。</li>
+                    <li>水平・垂直を足し合わせたものがFig5の4近傍のラプラシアンフィルタである。</li>
+                    <li>水平・垂直・斜め方向を足し合わせたものがFig6の8近傍のラプラシアンフィルタである。</li>
+                    <li>問題点：微分するほどノイズが強調されてしまう。</li>
+                </ul>
+            </div>
+            <div class="edge-text">
+                <h3>LoGフィルタ</h3>
+                <ul>
+                    <li>ラプラシアンフィルタのノイズ強調の解決策。</li>
+                    <li>前処理としてガウシアンフィルタでノイズを抑制し、その後ラプラシアンフィルタでエッジを抽出する</li>
+                    <li>$L(x,y) = \frac{\partial^2}{\partial x^2}G(x,y) + \frac{\partial^2}{\partial y^2}G(x,y)=\Big(\frac{1}{2\pi\sigma^2}\Big)^2 \frac{x^2+y^2-2\sigma^2}{\sigma^4}\exp\Big(-\frac{x^2+y^2}{2\sigma^2}\Big)$</li>
+                    <ul>
+                        <li>$\nabla^2[G(x,y)*I(x,y)]=[\nabla^2G(x,y)]*I(x,y)=L(x,y)*I(x,y)$</li>
+                        <li>入力画像：$I(x,y)$</li>
+                        <li>LoG：$L(x,y)$</li>
+                        <li>2次微分：$\nabla^2 = \Big( \frac{\partial^2}{\partial x^2},\frac{\partial^2}{\partial y^2}\Big)$</li>
+                        <li>ガウシアンフィルタ：$G(x,y)=\frac{1}{2\pi\sigma^2}\exp\Big(-\frac{x^2+y^2}{2\sigma^2}\Big)$</li>
+                    </ul>
+                    <li>人間の網膜でもLoGと同じような処理がされていることが知られている。</li>
+                </ul>
+            </div>
+            <div class="edge-text">
+                <h3>エッジ強調</h3>
+                <ul>
+                    <li>画像を鮮明にすることができる。</li>
+                    <li>Fig7, Fig8 のように、入力信号から抽出したエッジをひくことで実現する。</li>
+                </ul>
+            </div>
+
+
+        </div>
+        <div class="right">
+            <figure>
+                <img src="./img/edge/edge0.png" alt="">
+                <figcaption>Fig1. 1次微分の図解 画素の差分を取る</figcaption>
+            </figure>
+            <figure>
+                <img src="./img/edge/edge1.png" alt="">
+                <figcaption>Fig2. 入力信号を微分することの図解</figcaption>
+            </figure>
+
+            <figure>
+                <img src="./img/edge/sovel.png" alt="">
+                <figcaption>Fig3. 平滑化と1次微分の掛け合わせの図解</figcaption>
+            </figure>
+            <figure>
+                <img src="./img/edge/sovel.png" alt="">
+                <figcaption>Fig4. 2次微分の図解</figcaption>
+            </figure>
+            <figure style="width: 45%; float:left;">
+                <img src="./img/edge/lap4.png" alt="">
+                <figcaption>Fig5. ラプラシアンフィルタ(4近傍)</figcaption>
+            </figure>
+            <figure style="width: 45%; float: right;">
+                <img src="./img/edge/lap8.png" alt="">
+                <figcaption>Fig6. ラプラシアンフィルタ(8近傍)</figcaption>
+            </figure>
+            <figure>
+                <img src="./img/edge/edge2.png" alt="">
+                <figcaption>Fig7. エッジの強調の図解。入力信号からエッジを引く。</figcaption>
+            </figure>
+            <figure>
+                <img src="./img/edge/edge3.png" alt="">
+                <figcaption>Fig8. エッジ強調のカーネルの図解</figcaption>
+            </figure>
+        </div>
     </div>
     <div id="copy">&copy; 2022, Tomoya Onuki.</div>
 </body>
